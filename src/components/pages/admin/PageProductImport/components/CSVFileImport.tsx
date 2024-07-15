@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import axios from "axios";
@@ -8,8 +8,11 @@ type CSVFileImportProps = {
   title: string;
 };
 
+const TEST_TOKEN = "eW91cl9naXRodWJfYWNjb3VudF9sb2dpbjpURVNUX1BBU1NXT1JE";
+
 export default function CSVFileImport({ url, title }: CSVFileImportProps) {
   const [file, setFile] = React.useState<File | null>();
+  const [token, setToken] = React.useState("");
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -23,12 +26,24 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
     setFile(undefined);
   };
 
+  useEffect(() => {
+    localStorage.setItem("authorization_token", TEST_TOKEN);
+    const authorization_token = localStorage.getItem("authorization_token");
+
+    if (typeof authorization_token === "string") {
+      setToken(authorization_token);
+    }
+  }, []);
+
   const uploadFile = async () => {
     console.log("uploadFile to", url);
 
     const response = await axios({
       method: "GET",
       url,
+      headers: {
+        Authorization: `Basic ${token}`,
+      },
       params: {
         name: encodeURIComponent(file?.name || ""),
       },
