@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 type CSVFileImportProps = {
   url: string;
@@ -9,6 +10,21 @@ type CSVFileImportProps = {
 };
 
 const TEST_TOKEN = "eW91cl9naXRodWJfYWNjb3VudF9sb2dpbjpURVNUX1BBU1NXT1JE";
+
+const showToaster = (result: Response) => {
+  switch (result.status) {
+    case 200:
+      toast.success(`Successfully uploaded`);
+      break;
+    case 401:
+      toast.error("Unauthorized");
+      break;
+    case 403:
+      toast.error("Invalid credentials");
+    default:
+      toast.error("Unknown error");
+  }
+};
 
 export default function CSVFileImport({ url, title }: CSVFileImportProps) {
   const [file, setFile] = React.useState<File | null>();
@@ -55,6 +71,7 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
       body: file,
     });
     console.log("Result: ", result);
+    showToaster(result);
     setFile(null);
   };
   return (
