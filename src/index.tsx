@@ -9,6 +9,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import { theme } from "~/theme";
 import toast, { Toaster } from "react-hot-toast";
 import axios, { AxiosError, AxiosResponse } from "axios";
+import API_PATHS from "./constants/apiPaths";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,13 +49,20 @@ const showToaster = (result: AxiosResponse) => {
 // TODO move it from here after 7th task crosscheck
 axios.interceptors.response.use(
   (response: AxiosResponse) => {
-    showToaster(response);
+    if (response?.config?.url?.includes(API_PATHS.import)) {
+      showToaster(response);
+      console.log("ImportResponse: ", response);
+    }
 
     return Promise.resolve(response);
   },
   (error: AxiosError) => {
-    if (error?.response) {
+    if (
+      error?.response &&
+      error?.response?.config?.url?.includes(API_PATHS.import)
+    ) {
       showToaster(error?.response);
+      console.log("ImportError: ", error);
     }
 
     return Promise.reject(error);
